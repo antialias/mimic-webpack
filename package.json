@@ -1,0 +1,35 @@
+{
+  "name": "mimic-webpack",
+  "version": "1.1.1",
+  "description": "Mimics a webpack config's filename extensions, aliases, and loaders inside of the current node process",
+  "author": "",
+  "scripts": {
+    "test": "mocha",
+    "gitlint": "node_modules/.bin/dibslint --git --warnings",
+    "lint": "dibslint --root=."
+  },
+  "main": "index.js",
+  "pre-commit": {
+    "run": [
+      "gitlint"
+    ]
+  },
+  "devDependencies": {
+    "dibslint": "^1.2.4",
+    "mocha": "^2.3.4",
+    "pre-commit": "^1.1.2",
+    "sinon": "^1.17.2"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "jsdom": "^7.2.2",
+    "lodash.assign": "^4.0.0",
+    "lodash.foreach": "^4.0.0",
+    "lodash.result": "^4.0.0",
+    "null-loader": "^0.1.1",
+    "require-relative": "^0.8.7"
+  }
+}
