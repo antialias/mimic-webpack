@@ -75,6 +75,7 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
                 async: function () {
                     // todo: support async loaders
                     console.warn('Mimic does not support async loaders');
+                    return function () {};
                 },
                 callback: function (error, _moduleText) {
                     callbackused = true;
