@@ -150,4 +150,25 @@ describe('mimic', function () {
             assert.equal(bigLoader('asdf'), 'asdffunc2func1');
         });
     });
+    describe('options.loaders.use', function () {
+        it('should not use loaders that arent in the use list', function () {
+            m = new Mimic({
+                loaders: {
+                    use: ['./barjs']
+                },
+                webpackConfig: {
+                    resolve: {
+                        extensions: ['.bar']
+                    },
+                    module: {
+                        loaders: [{
+                            test: /\.bar$/,
+                            loader: './foojs'
+                        }]
+                    }
+                }
+            }).install();
+            assert.deepEqual(require('./foo'), {});
+        });
+    });
 });

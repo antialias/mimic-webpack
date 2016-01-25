@@ -2,6 +2,7 @@ var result = require('lodash.result');
 var assign = require('lodash.assign');
 var forEach = require('lodash.foreach');
 var Module = require('module');
+var nullLoader = require('null-loader');
 var path = require('path');
 var relative = require('require-relative');
 var slice = Array.prototype.slice;
@@ -18,9 +19,11 @@ var globalDomWindowProperties = [
 ];
 var Mimic = module.exports = function (options) {
     options = assign({
+        loaders: {},
         domSupport: false,
         webpackConfig: undefined,
     }, options);
+    this._useLoaders = options.loaders && options.loaders.use || [];
     this._domSupport = options.domSupport;
     this._domWindowProperties = globalDomWindowProperties;
     this._webpackConfig = options.webpackConfig;
@@ -54,8 +57,11 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
             } catch(e) {
                 loader = loader + '-loader';
             }
+            if (this._useLoaders.length > 0 && -1 === this._useLoaders.indexOf(loader)) {
+                return {module: nullLoader};
+            }
             return {module: relative(loader)};
-        });
+        }.bind(this));
     }
     // loaders is an array of loader functions
     return function (moduleText) {
