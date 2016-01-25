@@ -94,7 +94,7 @@ describe('mimic', function () {
         });
         it('should run loaders through the normalizer', function () {
             var myLoader = [];
-            sandbox.stub(Mimic, 'normalizeLoaders', Mimic.normalizeLoaders);
+            sandbox.stub(Mimic.prototype, 'normalizeLoaders', Mimic.prototype.normalizeLoaders);
             var m = new Mimic({
                 webpackConfig: {
                     resolve: {
@@ -112,31 +112,36 @@ describe('mimic', function () {
             }).install();
             sandbox.stub(Module.prototype, '_compile');
             require('./baz');
-            assert.equal(Mimic.normalizeLoaders.firstCall.args[0].loader, myLoader);
+            assert.equal(m.normalizeLoaders.firstCall.args[0].loader, myLoader);
         });
     });
     describe('normalizeLoaders', function () {
+        var mimic;
+        beforeEach(function () {
+            m = new Mimic();
+        });
         it('should handle single functions', function () {
+            var m = new Mimic();
             var loaderSpy = {loader: sinon.spy(function () {
                 return 'bar';
             })};
-            var bigLoader = Mimic.normalizeLoaders(loaderSpy);
+            var bigLoader = m.normalizeLoaders(loaderSpy);
             assert.equal(bigLoader('foo'), 'bar');
             sinon.assert.calledWith(loaderSpy.loader, 'foo');
         });
         it('should handle exclamation separated strings', function () {
-            var bigLoader = Mimic.normalizeLoaders({loader: './foojs!./barjs'});
+            var bigLoader = m.normalizeLoaders({loader: './foojs!./barjs'});
             assert.equal(bigLoader('asdf'), 'asdfbarfoo');
         });
         it('should handle arrays of functions', function () {
-            var bigLoader = Mimic.normalizeLoaders({loader: [
+            var bigLoader = m.normalizeLoaders({loader: [
                 function (content) {return content + 'func1';},
                 function (content) {return content + 'func2';}
             ]});
             assert.equal(bigLoader('asdf'), 'asdffunc2func1');
         });
         it('should functions that use this.callback', function () {
-            var bigLoader = Mimic.normalizeLoaders({loader: [
+            var bigLoader = m.normalizeLoaders({loader: [
                 function (content) {
                     return this.callback(null, content + 'func1');
                 },

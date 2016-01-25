@@ -32,11 +32,11 @@ var Mimic = module.exports = function (options) {
     this._loaders = (result(result(this._webpackConfig, 'module'), 'loaders') || [])
         .map(function (loaderConfig) {
             return assign({}, loaderConfig, {
-                bigLoader: Mimic.normalizeLoaders(loaderConfig)
+                bigLoader: this.normalizeLoaders(loaderConfig)
             });
-    });
+        }.bind(this));
 };
-Mimic.normalizeLoaders = function (loaderConfig) {
+Mimic.prototype.normalizeLoaders = function (loaderConfig) {
     var loaders = loaderConfig.loader;
     if (loaders instanceof Array) {
         loaders = loaders.map(function (loader) {
@@ -63,6 +63,7 @@ Mimic.normalizeLoaders = function (loaderConfig) {
             var callbackused = false;
             var loaderReturnValue = loader.module.call({
                 loaders: loaders,
+                options: this._webpackConfig,
                 loaderIndex: loaderIndex,
                 async: function () {
                     // todo: support async loaders
@@ -77,8 +78,8 @@ Mimic.normalizeLoaders = function (loaderConfig) {
                 moduleText = loaderReturnValue;
             }
             return moduleText;
-        }, moduleText);
-    };
+        }.bind(this), moduleText);
+    }.bind(this);
 };
 Mimic.restore = function () {
     Module.prototype.require = globalOriginalRequire;
@@ -98,7 +99,6 @@ Mimic.prototype._handleJsWithLoaders = function (module, filename) {
     if (!loaderConfig) {
         return this._originalExtensionHandlers['.js'].apply(this, arguments);
     }
-    var bigLoader = loaderConfig.bigLoader;
     var moduleText = loaderConfig.bigLoader(fs.readFileSync(filename, 'utf8'));
     return module._compile(moduleText, filename);
 };
