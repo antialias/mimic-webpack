@@ -128,7 +128,7 @@ describe('mimic', function () {
             sinon.assert.calledWith(loaderSpy, 'foo');
         });
         it('should handle exclamation separated strings', function () {
-            var bigLoader = Mimic.normalizeLoaders('./test/foojs!./test/barjs');
+            var bigLoader = Mimic.normalizeLoaders('./foojs!./barjs');
             assert.equal(bigLoader('asdf'), 'asdfbarfoo');
         });
         it('should handle arrays of functions', function () {
