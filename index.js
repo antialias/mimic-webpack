@@ -47,9 +47,10 @@ Mimic.normalizeLoaders = function (loaders) {
     }
     // loaders is an array of loader functions
     return function (moduleText) {
-        return loaders.reduceRight(function (moduleText, loader) {
+        return loaders.reduceRight(function (moduleText, loader, loaderIndex) {
             var callbackused = false;
             var loaderReturnValue = loader.call({
+                loaderIndex: loaderIndex,
                 async: function () {
                     // todo: support async loaders
                     console.warn('Mimic does not support async loaders');
