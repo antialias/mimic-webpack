@@ -69,7 +69,6 @@ Mimic.prototype._handleJsWithLoaders = function (module, filename) {
     if (!loaderConfig) {
         return this._originalExtensionHandlers['.js'].apply(this, arguments);
     }
-    debugger;
     var bigLoader = Mimic.normalizeLoaders(loaderConfig.loader);
     var moduleText = bigLoader(fs.readFileSync(filename, 'utf8'));
     return module._compile(moduleText, filename);
