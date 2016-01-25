@@ -112,39 +112,36 @@ describe('mimic', function () {
             }).install();
             sandbox.stub(Module.prototype, '_compile');
             require('./baz');
-            sinon.assert.calledWith(
-                Mimic.normalizeLoaders,
-                myLoader
-            );
+            assert.equal(Mimic.normalizeLoaders.firstCall.args[0].loader, myLoader);
         });
     });
     describe('normalizeLoaders', function () {
         it('should handle single functions', function () {
-            var loaderSpy = sinon.spy(function () {
+            var loaderSpy = {loader: sinon.spy(function () {
                 return 'bar';
-            });
+            })};
             var bigLoader = Mimic.normalizeLoaders(loaderSpy);
             assert.equal(bigLoader('foo'), 'bar');
-            sinon.assert.calledWith(loaderSpy, 'foo');
+            sinon.assert.calledWith(loaderSpy.loader, 'foo');
         });
         it('should handle exclamation separated strings', function () {
-            var bigLoader = Mimic.normalizeLoaders('./foojs!./barjs');
+            var bigLoader = Mimic.normalizeLoaders({loader: './foojs!./barjs'});
             assert.equal(bigLoader('asdf'), 'asdfbarfoo');
         });
         it('should handle arrays of functions', function () {
-            var bigLoader = Mimic.normalizeLoaders([
+            var bigLoader = Mimic.normalizeLoaders({loader: [
                 function (content) {return content + 'func1';},
                 function (content) {return content + 'func2';}
-            ]);
+            ]});
             assert.equal(bigLoader('asdf'), 'asdffunc2func1');
         });
         it('should functions that use this.callback', function () {
-            var bigLoader = Mimic.normalizeLoaders([
+            var bigLoader = Mimic.normalizeLoaders({loader: [
                 function (content) {
                     return this.callback(null, content + 'func1');
                 },
                 function (content) {return content + 'func2';}
-            ]);
+            ]});
             assert.equal(bigLoader('asdf'), 'asdffunc2func1');
         });
     });

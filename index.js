@@ -32,13 +32,19 @@ var Mimic = module.exports = function (options) {
     this._loaders = (result(result(this._webpackConfig, 'module'), 'loaders') || [])
         .map(function (loaderConfig) {
             return assign({}, loaderConfig, {
-                bigLoader: Mimic.normalizeLoaders(loaderConfig.loader)
+                bigLoader: Mimic.normalizeLoaders(loaderConfig)
             });
     });
 };
-Mimic.normalizeLoaders = function (loaders) {
+Mimic.normalizeLoaders = function (loaderConfig) {
+    var loaders = loaderConfig.loader;
+    if (loaders instanceof Array) {
+        loaders = loaders.map(function (loader) {
+            return {module: loader};
+        });
+    }
     if ('function' === typeof loaders) {
-        loaders = [loaders];
+        loaders = [{module: loaders}];
     }
     if ('string' === typeof loaders) {
         loaders = loaders.split('!').map(function (loader) {
@@ -48,14 +54,15 @@ Mimic.normalizeLoaders = function (loaders) {
             } catch(e) {
                 loader = loader + '-loader';
             }
-            return relative(loader);
+            return {module: relative(loader)};
         });
     }
     // loaders is an array of loader functions
     return function (moduleText) {
         return loaders.reduceRight(function (moduleText, loader, loaderIndex) {
             var callbackused = false;
-            var loaderReturnValue = loader.call({
+            var loaderReturnValue = loader.module.call({
+                loaders: loaders,
                 loaderIndex: loaderIndex,
                 async: function () {
                     // todo: support async loaders
