@@ -78,7 +78,7 @@ describe('mimic', function () {
                     module: {
                         loaders: [
                             {
-                                test: /.reverse/,
+                                test: /\.reverse/,
                                 loader: loaderSpy
                             }
                         ]
@@ -103,7 +103,7 @@ describe('mimic', function () {
                     module: {
                         loaders: [
                             {
-                                test: /.reverse/,
+                                test: /\.reverse/,
                                 loader: myLoader
                             }
                         ]
