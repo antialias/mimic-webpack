@@ -6,14 +6,23 @@ var path = require('path');
 var relative = require('require-relative');
 var slice = Array.prototype.slice;
 var fs = require('fs');
+var jsdom = require('jsdom').jsdom;
 var globalOriginalRequire = Module.prototype.require;
 
 var globalOriginalExtensionHandlers = assign({}, require.extensions);
+var globalDomWindowProperties = [
+    'document',
+    'window',
+    'Element',
+    'HTMLElement'
+];
 var Mimic = module.exports = function (options) {
     options = assign({
+        domSupport: false,
         webpackConfig: undefined,
     }, options);
-
+    this._domSupport = options.domSupport;
+    this._domWindowProperties = globalDomWindowProperties;
     this._webpackConfig = options.webpackConfig;
     if (options.webpackConfig) {
         this._webpackAliases = result(result(options.webpackConfig, 'resolve'), 'alias') || [];
@@ -90,6 +99,13 @@ Mimic.prototype.install = function () {
     this._originalExtensionHandlers = {};
     this._originalExtensionHandlers['.js'] = require.extensions['.js'];
     require.extensions['.js'] = this._handleJsWithLoaders;
+    if (this._domSupport) { // TODO: uninstall this stuff on uninstall and restore
+        global.document = jsdom(undefined, {});
+        global.window = document.defaultView;
+        this._domWindowProperties.forEach(function (globalDomPropertyName) {
+            global[globalDomPropertyName] = global.window[globalDomPropertyName];
+        });
+    }
     if (this._extensions) {
         this._extensions.forEach(function (extension) {
             if (extension !== '.js') {
