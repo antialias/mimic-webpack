@@ -140,7 +140,7 @@ describe('mimic', function () {
             ]});
             assert.equal(bigLoader('asdf'), 'asdffunc2func1');
         });
-        it('should functions that use this.callback', function () {
+        it('should support functions that use this.callback', function () {
             var bigLoader = m.normalizeLoaders({loader: [
                 function (content) {
                     return this.callback(null, content + 'func1');
