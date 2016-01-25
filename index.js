@@ -62,6 +62,7 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
         return loaders.reduceRight(function (moduleText, loader, loaderIndex) {
             var callbackused = false;
             var loaderReturnValue = loader.module.call({
+                cacheable: function () {},
                 loaders: loaders,
                 options: this._webpackConfig,
                 loaderIndex: loaderIndex,
