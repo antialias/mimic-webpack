@@ -3,6 +3,7 @@ var assign = require('lodash.assign');
 var forEach = require('lodash.foreach');
 var Module = require('module');
 var path = require('path');
+var relative = require('require-relative');
 var slice = Array.prototype.slice;
 var fs = require('fs');
 var globalOriginalRequire = Module.prototype.require;
@@ -26,7 +27,13 @@ Mimic.normalizeLoaders = function (loaders) {
     }
     if ('string' === typeof loaders) {
         loaders = loaders.split('!').map(function (loader) {
-            return require(loader);
+            loader = loader.split('?')[0];
+            try {
+                relative.resolve(loader)
+            } catch(e) {
+                loader = loader + '-loader';
+            }
+            return relative(loader);
         });
     }
     // loaders is an array of loader functions

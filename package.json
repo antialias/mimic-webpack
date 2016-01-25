@@ -18,6 +18,7 @@
   "dependencies": {
     "lodash.assign": "^4.0.0",
     "lodash.foreach": "^4.0.0",
-    "lodash.result": "^4.0.0"
+    "lodash.result": "^4.0.0",
+    "require-relative": "^0.8.7"
   }
 }
