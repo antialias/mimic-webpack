@@ -5,7 +5,7 @@
   "author": "",
   "scripts": {
     "test": "mocha",
-    "gitlint": "node_modules/.bin/dibslint --git --warnings",
+    "gitlint": "dibslint --git --warnings",
     "lint": "dibslint --root=."
   },
   "main": "index.js",
@@ -31,5 +31,13 @@
     "lodash.result": "^4.0.0",
     "null-loader": "^0.1.1",
     "require-relative": "^0.8.7"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antialias/mimic-webpack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/antialias/mimic-webpack/issues"
+  },
+  "homepage": "https://github.com/antialias/mimic-webpack#readme"
 }
