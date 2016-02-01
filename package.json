@@ -1,6 +1,6 @@
 {
   "name": "mimic-webpack",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Mimics a webpack config's filename extensions, aliases, and loaders inside of the current node process",
   "author": "",
   "scripts": {
