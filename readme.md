@@ -2,6 +2,7 @@
 Mimics a webpack config's filename extensions, aliases, and loaders inside of the current node process.
 
 You might want to `mimic.install()`:
+
 * instead of bundling your specs with webpack.
 * before using linter rules like [`eslint-plugin-require-path-exists`](https://www.npmjs.com/package/eslint-plugin-require-path-exists).
 * when performing universal rendering with code you also plan to bundle with webpack.
