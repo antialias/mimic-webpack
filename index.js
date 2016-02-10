@@ -42,6 +42,16 @@ var Mimic = module.exports = function (options) {
             });
         }.bind(this));
 };
+
+var canRequire = function (path) {
+    try {
+        relative.resolve(path);
+    } catch(e) {
+        return false;
+    }
+    return true;
+};
+
 Mimic.prototype.normalizeLoaders = function (loaderConfig) {
     var loaders = loaderConfig.loader;
     if (loaders instanceof Array) {
@@ -55,10 +65,10 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
     if ('string' === typeof loaders) {
         loaders = loaders.split('!').map(function (loader) {
             loader = loader.split('?')[0];
-            try {
-                relative.resolve(loader)
-            } catch(e) {
-                loader = loader + '-loader';
+            if (!canRequire(loader)) {
+                if (canRequire(loader + '-loader')) {
+                    loader += '-loader';
+                }
             }
             if (this._identityLoaders.length > 0 && -1 !== this._identityLoaders.indexOf(loader)) {
                 return {module: identityLoader};
