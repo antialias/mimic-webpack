@@ -4,6 +4,7 @@ var forEach = require('lodash.foreach');
 var Module = require('module');
 var nullLoader = require('null-loader');
 var identityLoader = require('./identity-loader');
+var emptyObjectLoader = require('./empty-object-loader');
 var path = require('path');
 var relative = require('require-relative');
 var slice = Array.prototype.slice;
@@ -29,6 +30,7 @@ var Mimic = module.exports = function (options) {
     }, options);
     this._useLoaders = options.loaders && options.loaders.use;
     this._identityLoaders = options.loaders && options.loaders.identity || [];
+    this._emptyObjectLoaders = options.loaders && options.loaders.emptyObject || [];
     this._domSupport = options.domSupport;
     this._domWindowProperties = globalDomWindowProperties;
     this._webpackConfig = options.webpackConfig;
@@ -49,7 +51,8 @@ var Mimic = module.exports = function (options) {
             return assign({}, loaderConfig, {
                 bigLoader: this.normalizeLoaders(loaderConfig)
             });
-        }.bind(this));
+        }.bind(this))
+        .reverse();
 };
 
 var canRequire = function (path) {
@@ -81,6 +84,9 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
             }
             if (this._identityLoaders.length > 0 && -1 !== this._identityLoaders.indexOf(loader)) {
                 return {module: identityLoader};
+            }
+            if (this._emptyObjectLoaders.length > 0 && -1 !== this._emptyObjectLoaders.indexOf(loader)) {
+                return {module: emptyObjectLoader};
             }
             if (this._useLoaders && -1 === this._useLoaders.indexOf(loader)) {
                 return {module: nullLoader};

@@ -260,4 +260,25 @@ describe('mimic', function () {
             assert.deepEqual(require('./test-modules/exports-somejsfile-module'), 'somejsfile');
         });
     });
+    describe('options.loaders.empty', function () {
+        it('should use the null loader for loaders not in options.loaders.use', function () {
+            m = new Mimic({
+                loaders: {
+                    emptyObject: ['./test-loaders/bar-true-loader']
+                },
+                webpackConfig: {
+                    resolve: {
+                        extensions: ['.foo']
+                    },
+                    module: {
+                        loaders: [{
+                            test: /\.foo$/,
+                            loader: './test-loaders/bar-true'
+                        }]
+                    }
+                }
+            }).install();
+            assert.deepEqual(require('./test-modules/foo-true-exporter-foo-file'), {});
+        });
+    });
 });
