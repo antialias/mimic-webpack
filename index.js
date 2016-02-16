@@ -11,6 +11,8 @@ var fs = require('fs');
 var jsdom = require('jsdom').jsdom;
 var globalOriginalRequire = Module.prototype.require;
 
+var globalOriginalNODE_PATH = process.env.NODE_PATH;
+var globalOriginalRequireMainPaths = require.main.paths;
 var globalOriginalExtensionHandlers = assign({}, require.extensions);
 var globalDomWindowProperties = [
     'CustomEvent',
@@ -30,6 +32,10 @@ var Mimic = module.exports = function (options) {
     this._domSupport = options.domSupport;
     this._domWindowProperties = globalDomWindowProperties;
     this._webpackConfig = options.webpackConfig;
+    this._roots = options.webpackConfig.resolve.root;
+    if ('string' === typeof this._roots) {
+        this._roots = [this._roots];
+    }
     if (options.webpackConfig) {
         this._webpackAliases = result(result(options.webpackConfig, 'resolve'), 'alias') || [];
     }
@@ -114,6 +120,11 @@ Mimic.restore = function () {
             require.extensions[extension] = globalOriginalExtensionHandlers[extension];
         }
     });
+    if (globalOriginalRequireMainPaths) {
+        require.main.paths = globalOriginalRequireMainPaths;
+    }
+    process.env.NODE_PATH = globalOriginalNODE_PATH;
+    require('module').Module._initPaths();
 };
 
 Mimic.prototype._handleJsWithLoaders = function (module, filename) {
@@ -152,6 +163,15 @@ Mimic.prototype.install = function () {
             require.extensions[extension] = require.extensions['.js'];
         }.bind(this));
     }
+    if (this._roots) {
+        this._originalRequireMainPaths = [].concat(require.main.paths);
+        this._roots.forEach(function (root) {
+            require.main.paths = require.main.paths.concat(root);
+        });
+        this._original_NODE_PATH = process.env.NODE_PATH;
+        process.env.NODE_PATH = this._roots.join(':');
+        require('module').Module._initPaths();
+    }
     return this;
 };
 Mimic.prototype.uninstall = function () {
@@ -170,6 +190,13 @@ Mimic.prototype.uninstall = function () {
             require.extensions[extension] = handler;
         }
     });
+    if (this._originalRequireMainPaths) {
+        require.main.paths = this._originalRequireMainPaths;
+    }
+    if (this._original_NODE_PATH) {
+        process.env.NODE_PATH = this._original_NODE_PATH;
+    }
+    require('module').Module._initPaths();
     return this;
 };
 

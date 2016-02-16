@@ -49,6 +49,32 @@ describe('mimic', function () {
             sinon.assert.calledWith(m._originalRequire, 'bar.js');
         });
     });
+    describe.only('resolve.root', function () {
+        it('should use use resolve.root as require root when present', function () {
+            new Mimic({
+                webpackConfig: {
+                    resolve: {
+                        root: [
+                            path.join(__dirname, 'test-roots', 'foo-root'),
+                            path.join(__dirname, 'test-roots', 'bar-root')
+                        ]
+                    }
+                }
+            }).install();
+            require('bar-at-root');
+            require('foo-at-root');
+        });
+        it('should work as a string instead of an array', function () {
+            new Mimic({
+                webpackConfig: {
+                    resolve: {
+                        root: path.join(__dirname, 'test-roots', 'baz-root')
+                    }
+                }
+            }).install();
+            require('baz-at-root');
+        });
+    });
     it('should use resolve.extensions to resolve paths', function () {
         var m = new Mimic({
             webpackConfig: {
