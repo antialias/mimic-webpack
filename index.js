@@ -32,12 +32,15 @@ var Mimic = module.exports = function (options) {
     this._domSupport = options.domSupport;
     this._domWindowProperties = globalDomWindowProperties;
     this._webpackConfig = options.webpackConfig;
-    this._roots = options.webpackConfig.resolve.root;
-    if ('string' === typeof this._roots) {
-        this._roots = [this._roots];
-    }
+    this._roots = [];
     if (options.webpackConfig) {
         this._webpackAliases = result(result(options.webpackConfig, 'resolve'), 'alias') || [];
+        if (options.webpackConfig.resolve) {
+            this._roots = options.webpackConfig.resolve.root;
+        }
+    }
+    if ('string' === typeof this._roots) {
+        this._roots = [this._roots];
     }
     this._extensions = result(result(this._webpackConfig, 'resolve'), 'extensions');
     this._handleJsWithLoaders = this._handleJsWithLoaders.bind(this);

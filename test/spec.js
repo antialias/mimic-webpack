@@ -49,7 +49,7 @@ describe('mimic', function () {
             sinon.assert.calledWith(m._originalRequire, 'bar.js');
         });
     });
-    describe.only('resolve.root', function () {
+    describe('resolve.root', function () {
         it('should use use resolve.root as require root when present', function () {
             new Mimic({
                 webpackConfig: {
