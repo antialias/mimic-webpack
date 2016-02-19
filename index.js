@@ -100,25 +100,25 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
         return loaders.reduceRight(function (inModuleText, loader, loaderIndex) {
             var callbackused = false;
             var outModuleText;
+            var callback = function (error, _outModuleText) {
+                callbackused = true;
+                outModuleText = _outModuleText;
+            };
+            var async = false;
             var outModuleTextSync = loader.module.call({
                 cacheable: function () {},
                 loaders: loaders,
                 options: this._webpackConfig,
                 loaderIndex: loaderIndex,
                 async: function () {
-                    // todo: support async loaders
-                    console.warn('Mimic does not support async loaders');
-                    return function () {};
+                    async = true;
+                    return callback;
                 },
-                callback: function (error, _outModuleText) {
-                    callbackused = true;
-                    outModuleText = _outModuleText;
-                }
+                callback: callback
             }, inModuleText);
-            if (!outModuleText) {
+            if (!async) {
                 outModuleText = outModuleTextSync;
-            }
-            if (!outModuleText) {
+            } else {
                 deasync.loopWhile(function () { return !callbackused; });
             }
             return outModuleText;

@@ -148,6 +148,8 @@ describe('mimic', function () {
                             {
                                 test: /\.js$/,
                                 loader: function () {
+                                    var callback = this.async();
+                                    assert.strictEqual(callback, this.callback);
                                     setTimeout(function () {
                                         this.callback(null, 'module.exports = {async:true};');
                                     }.bind(this));
@@ -189,6 +191,7 @@ describe('mimic', function () {
         it('should support functions that use this.callback', function () {
             var bigLoader = m.normalizeLoaders({loader: [
                 function (content) {
+                    this.async();
                     this.callback(null, content + 'func1');
                 },
                 function (content) {return content + 'func2';}
