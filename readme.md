@@ -64,6 +64,5 @@ require.resolve('theirModule'); // still resolves to myModule.foo.
 ```
 
 ## current limitations
-* Asynchronous loaders are not supported
 * Loaders must be specified in the webpack config. Loaders specified on the path will not work
 * `install` and `uninstall` can only be run once per instance.

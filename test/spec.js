@@ -95,7 +95,7 @@ describe('mimic', function () {
             delete require.cache[require.resolve('./test-modules/raw-content')];
         });
         it('should apply webpack loaders according to the matcher', function () {
-            var loaderSpy = sinon.spy();
+            var loaderSpy = sinon.spy(function () {return true});
             var m = new Mimic({
                 webpackConfig: {
                     resolve: {
@@ -140,6 +140,26 @@ describe('mimic', function () {
             require('./test-modules/raw-content');
             assert.equal(m.normalizeLoaders.firstCall.args[0].loader, myLoader);
         });
+        it('should support asynchronous loaders', function () {
+            var m = new Mimic({
+                webpackConfig: {
+                    module: {
+                        loaders: [
+                            {
+                                test: /\.js$/,
+                                loader: function () {
+                                    setTimeout(function () {
+                                        this.callback(null, 'module.exports = {async:true};');
+                                    }.bind(this));
+                                }
+                            }
+                        ]
+                    }
+                }
+            }).install();
+            assert.deepEqual(require('./test-modules/empty-js-module'), {async: true});
+            delete require.cache[require.resolve('./test-modules/empty-js-module')];
+        });
     });
     describe('normalizeLoaders', function () {
         var mimic;
@@ -169,7 +189,7 @@ describe('mimic', function () {
         it('should support functions that use this.callback', function () {
             var bigLoader = m.normalizeLoaders({loader: [
                 function (content) {
-                    return this.callback(null, content + 'func1');
+                    this.callback(null, content + 'func1');
                 },
                 function (content) {return content + 'func2';}
             ]});
@@ -236,6 +256,7 @@ describe('mimic', function () {
             }).install();
             assert.deepEqual(require('./test-modules/foo-true-exporter-foo-file'), {foo:true});
             delete require.cache[require.resolve('./test-modules/foo-true-exporter-foo-file')];
+            m.uninstall();
         });
     });
     describe('options.loaders.null', function () {
@@ -258,6 +279,8 @@ describe('mimic', function () {
             }).install();
             assert.deepEqual(require('./test-modules/foo-true-exporter-foo-file'), {});
             assert.deepEqual(require('./test-modules/exports-somejsfile-module'), 'somejsfile');
+            delete require.cache[require.resolve('./test-modules/exports-somejsfile-module')];
+            delete require.cache[require.resolve('./test-modules/foo-true-exporter-foo-file')];
         });
     });
     describe('options.loaders.empty', function () {
@@ -279,6 +302,7 @@ describe('mimic', function () {
                 }
             }).install();
             assert.deepEqual(require('./test-modules/foo-true-exporter-foo-file'), {});
+            delete require.cache[require.resolve('./test-modules/foo-true-exporter-foo-file')];
         });
     });
 });

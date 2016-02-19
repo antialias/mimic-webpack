@@ -7,6 +7,7 @@ var identityLoader = require('./identity-loader');
 var emptyObjectLoader = require('./empty-object-loader');
 var path = require('path');
 var relative = require('require-relative');
+var deasync = require('deasync');
 var slice = Array.prototype.slice;
 var fs = require('fs');
 var jsdom = require('jsdom').jsdom;
@@ -96,9 +97,10 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
     }
     // loaders is an array of loader functions
     return function (moduleText) {
-        return loaders.reduceRight(function (moduleText, loader, loaderIndex) {
+        return loaders.reduceRight(function (inModuleText, loader, loaderIndex) {
             var callbackused = false;
-            var loaderReturnValue = loader.module.call({
+            var outModuleText;
+            var outModuleTextSync = loader.module.call({
                 cacheable: function () {},
                 loaders: loaders,
                 options: this._webpackConfig,
@@ -108,15 +110,18 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
                     console.warn('Mimic does not support async loaders');
                     return function () {};
                 },
-                callback: function (error, _moduleText) {
+                callback: function (error, _outModuleText) {
                     callbackused = true;
-                    moduleText = _moduleText;
+                    outModuleText = _outModuleText;
                 }
-            }, moduleText);
-            if (!callbackused) {
-                moduleText = loaderReturnValue;
+            }, inModuleText);
+            if (!outModuleText) {
+                outModuleText = outModuleTextSync;
             }
-            return moduleText;
+            if (!outModuleText) {
+                deasync.loopWhile(function () { return !callbackused; });
+            }
+            return outModuleText;
         }.bind(this), moduleText);
     }.bind(this);
 };
