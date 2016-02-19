@@ -110,6 +110,16 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
                 loaders: loaders,
                 options: this._webpackConfig,
                 loaderIndex: loaderIndex,
+                resolve: function (context, request, callback) {
+                    var m;
+                    var err
+                    try {
+                        m = require(request);
+                    } catch (_err) {
+                        err = _err;
+                    }
+                    return callback(err, m);
+                },
                 async: function () {
                     async = true;
                     return callback;
