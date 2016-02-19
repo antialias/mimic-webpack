@@ -126,7 +126,7 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
                 },
                 callback: callback
             }, inModuleText);
-            if (!async) {
+            if (!async && !callbackused) {
                 outModuleText = outModuleTextSync;
             } else {
                 deasync.loopWhile(function () { return !callbackused; });
