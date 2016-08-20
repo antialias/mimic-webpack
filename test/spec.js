@@ -90,6 +90,21 @@ describe('mimic', function () {
             require.resolve('./test-modules/another-empty-bar-module'); // using another file because we can no longer make previously resolved paths unresolvable
         }, Error);
     });
+    it(`should give precedence to loaders with the "-loader" suffix`, function () {
+        m = new Mimic({
+            webpackConfig: {
+                module: {
+                    loaders: [{
+                        test: /\.js$/,
+                        loader: './test-loaders/bar-true'
+                    }]
+                }
+            }
+        }).install();
+        assert(!require('./test-modules/empty-js-module').wrongloader);
+        delete require.cache[require.resolve('./test-modules/empty-js-module')];
+        m.uninstall();
+    });
     describe('webpack loader transforms', function () {
         afterEach(function () {
             delete require.cache[require.resolve('./test-modules/raw-content')];

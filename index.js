@@ -1,3 +1,4 @@
+"use strict";
 var result = require('lodash.result');
 var assign = require('lodash.assign');
 var forEach = require('lodash.foreach');
@@ -78,10 +79,8 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
     if ('string' === typeof loaders) {
         loaders = loaders.split('!').map(function (loader) {
             loader = loader.split('?')[0];
-            if (!canRequire(loader)) {
-                if (canRequire(loader + '-loader')) {
-                    loader += '-loader';
-                }
+            if (canRequire(loader + '-loader')) {
+                loader += '-loader';
             }
             if (this._identityLoaders.length > 0 && -1 !== this._identityLoaders.indexOf(loader)) {
                 return {module: identityLoader};
@@ -92,7 +91,11 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
             if (this._useLoaders && -1 === this._useLoaders.indexOf(loader)) {
                 return {module: nullLoader};
             }
-            return {module: relative(loader)};
+            return {
+                name: loader,
+                path: relative.resolve(loader),
+                module: relative(loader)
+            };
         }.bind(this));
     }
     // loaders is an array of loader functions
@@ -105,6 +108,19 @@ Mimic.prototype.normalizeLoaders = function (loaderConfig) {
                 outModuleText = _outModuleText;
             };
             var async = false;
+            if ('function' !== typeof loader.module) {
+                let msg = "";
+                if (!loader.name) {
+                    msg += `loader in position ${loaderIndex}`;
+                } else {
+                    msg += ` with name "${loader.name}"`;
+                }
+                if (loader.path) {
+                    msg += ` at ${loader.path}`;
+                }
+                msg += ` is not a function`;
+                throw new Error(msg);
+            }
             var outModuleTextSync = loader.module.call({
                 cacheable: function () {},
                 loaders: loaders,
